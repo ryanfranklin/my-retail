@@ -2,6 +2,7 @@ package com.ryanfranklin.myretail.repository;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ryanfranklin.myretail.exception.NotFoundException;
 import com.ryanfranklin.myretail.model.Product;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,11 +14,14 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Repository
 public class ProductImplRepository {
@@ -32,7 +36,7 @@ public class ProductImplRepository {
     /** The URL variable tag for the id of the product **/
     private static final String PATH_VARIABLE_TAG_ID = "id";
 
-    /** The json path for the product name is: product/item/product_description/title **/
+    /** The json path for the product name is: product.item.product_description.title **/
     private static final String JSON_TAG_PRODUCT = "product";
     private static final String JSON_TAG_ITEM = "item";
     private static final String JSON_TAG_PRODUCT_DESCRIPTION = "product_description";
@@ -57,16 +61,18 @@ public class ProductImplRepository {
     /**
      * Gets a {@link Product} by {@code id}.
      * @param id the id of the product, not null
-     * @return a product, or null if any product details could not be found by the id given.
+     * @return a product, not null
      */
     public Product findOne(String id) {
 
-        // TODO: NULL CHECK
+        checkNotNull(id);
+
         String name = getName(id);
         Product.CurrentPrice currentPrice = currentPriceRepository.findOne(id);
 
-        if (currentPrice == null || name == null) {
-            return null;
+        if (currentPrice == null) {
+            logger.debug("Could not find the product's current price by id: {}", id);
+            throw new NotFoundException();
         }
         return new Product(id, name, currentPrice);
     }
@@ -74,11 +80,12 @@ public class ProductImplRepository {
     /**
      * Gets a {@link Product} name by {@code id}.
      * @param id the id of the product, not null
-     * @return a product name, or null if the name could not be found by the id given.
+     * @return a product name, not null
      */
     private String getName(String id) {
 
-        // TODO: NULL CHECK
+        checkNotNull(id);
+
         RestTemplate restTemplate = new RestTemplate();
         Map<String, String> uriVariables = new HashMap<>();
         uriVariables.put(PATH_VARIABLE_TAG_ID, id);
@@ -90,8 +97,8 @@ public class ProductImplRepository {
             if (e.getStatusCode() != HttpStatus.NOT_FOUND) {
                 throw e;
             } else {
-                logger.debug("GET request for product name resulted in 404. Returning null.");
-                return null;
+                logger.debug("Could not find the product's name by id: {}", id);
+                throw new NotFoundException();
             }
         }
 
@@ -115,5 +122,32 @@ public class ProductImplRepository {
         } else {
             return name;
         }
+    }
+
+    /**
+     * Updates a {@link Product} by {@code id}.
+     *
+     * @param id the id of the product, not null
+     * @param product the product details to update
+     */
+    public void update(String id, @Valid Product product) {
+
+        checkNotNull(id);
+
+        String name = product.getName();
+        // Update product name here when implementation becomes known
+
+        Product.CurrentPrice currentPrice = currentPriceRepository.findOne(id);
+
+        if (currentPrice == null) {
+            logger.debug("Could not find the product's current price by id: {}", id);
+            throw new NotFoundException();
+        }
+
+        Product.CurrentPrice newPrice = product.getCurrentPrice();
+        currentPrice.setValue(newPrice.getValue());
+        currentPrice.setCurrencyCode(newPrice.getCurrencyCode());
+
+        currentPriceRepository.save(currentPrice);
     }
 }

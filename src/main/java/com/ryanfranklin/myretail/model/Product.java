@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Objects;
 
 public class Product {
 
@@ -94,6 +95,22 @@ public class Product {
         this.currentPrice = currentPrice;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return Objects.equals(id, product.id) &&
+                Objects.equals(name, product.name) &&
+                Objects.equals(currentPrice, product.currentPrice);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id, name, currentPrice);
+    }
+
     @Document
     public static class CurrentPrice {
 
@@ -150,6 +167,22 @@ public class Product {
          */
         public void setCurrencyCode(String currencyCode) {
             this.currencyCode = currencyCode;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            CurrentPrice that = (CurrentPrice) o;
+            return Objects.equals(id, that.id) &&
+                    Objects.equals(value, that.value) &&
+                    Objects.equals(currencyCode, that.currencyCode);
+        }
+
+        @Override
+        public int hashCode() {
+
+            return Objects.hash(id, value, currencyCode);
         }
     }
 }
