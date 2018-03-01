@@ -1,7 +1,6 @@
 package com.ryanfranklin.myretail.controller;
 
 import com.ryanfranklin.myretail.model.Product;
-import com.ryanfranklin.myretail.repository.ProductCurrentPriceRepository;
 import com.ryanfranklin.myretail.repository.ProductImplRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,17 +12,11 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/products")
-class ProductController {
+public class ProductController {
 
     @Autowired
     private ProductImplRepository productImplRepository;
 
-
-//    @RequestMapping(method=RequestMethod.POST, consumes= MediaType.APPLICATION_JSON_VALUE)
-//    public void createProduct(@RequestBody @Valid Product product) {
-//        Product.CurrentPrice currentPrice = product.getCurrentPrice();
-//        currentPriceRepository.save(currentPrice);
-//    }
 
     @RequestMapping(method=RequestMethod.GET)
     public Iterable<Product> getProducts() {

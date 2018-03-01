@@ -1,11 +1,7 @@
 package com.ryanfranklin.myretail.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.PersistenceConstructor;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.Valid;
@@ -15,12 +11,17 @@ import java.util.Objects;
 
 public class Product {
 
+    /** The unique identifier of this product */
     @NotNull
     @Size(min=1)
     private String id;
+
+    /** The name or title of this product */
     @NotNull
     @Size(min=1)
     private String name;
+
+    /** The current price details of this product */
     @Valid
     @NotNull
     private CurrentPrice currentPrice;
@@ -35,7 +36,6 @@ public class Product {
      * @param currentPrice the current price of this product, not null
      */
     public Product(String id, String name, CurrentPrice currentPrice) {
-        //TODO: Validate not null
         this.id = id;
         this.name = name;
         this.currentPrice = currentPrice;
@@ -114,12 +114,17 @@ public class Product {
     @Document
     public static class CurrentPrice {
 
+        /** The product id for this price */
         @Id
         @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
         private String id;
+
+        /** The current price of the product as a value (10.00) */
         @NotNull
         @Size(min=1)
         private String value;
+
+        /** The code that identifies the type of currency (ex. USD) */
         @NotNull
         @Size(min=1)
         private String currencyCode;
