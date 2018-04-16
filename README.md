@@ -36,7 +36,6 @@ Example Request:
 
 ### Prerequisites
 
-Windows<br>
 MongoDB<br>
 Java 8 or above<br>
 Set the JAVA_HOME environment variable to the installed Java location
